@@ -14,7 +14,7 @@
 
 #include <stdlib.h>
 #include <stdio.h>   //решил пофлексить Каспер Дмитрий 1 курс 4 группа(ИВТ)
-int main ()
+int main (int argc, char* argv[])
 {
 	int a;
 	printf("Выберите, что использовать: (1) - калькулятор обычный\n");
