@@ -19,98 +19,111 @@ int main (int argc, char* argv[])
     setvbuf(stdout, NULL, _IONBF, 0);
     setvbuf(stderr, NULL, _IONBF, 0);
 
-    char end;
-    int a;
-    printf("Выберите, что использовать: (1) - калькулятор обычный\n");
-    printf("Выберите, что использовать: (2) - калькулятор векторный\n");
-    scanf("%i",&a);
+    FILE *input,*output;
+    input = fopen("input.txt","r");
+    output = fopen("output.txt","w");
+    char start, end;
+
+
+    /*printf("Выберите, что использовать: (s) - simple calculator\n");     //<- из консольного калькулятора
+    printf("Выберите, что использовать: (v) - vector calculator\n");*/
+
+
     do
     {
-    if (a == 1)
+    fscanf(input," %c",&start);
+    if (start == 's')
     {
-        //Задумка была такая: сделать калькулятор
-        //не нагруженным в использовании, похожим
+        									 //Задумка была такая: сделать калькулятор
+        									 //не нагруженным в использовании, похожим
         unsigned long int a;                 //на калькулятор в Windows
-        int tic;
+        //int tic;
         double res,b,c;
-        char str,s,r;
+        char str,workwithres,res_s;
         do
         {
-        tic=0;
-        printf("вы можете: взять факториал 1 числа(3 !), модуль 1 числа(3 a)\n");
+        //tic=0;
+
+
+        /*printf("вы можете: взять факториал 1 числа(3 !), модуль 1 числа(3 a)\n");      //<- из консольного калькулятора
         printf("сложить 2 числа(1 + 2), поделить(1 / 2), умножить(1 * 1)\n");
-        printf("возвести 1 число в степень равную номеру 2 числа(1 ^ 2)\n");
-            scanf("%lf",&res);             //тк калькулятор win может продолжить работу
-            do                             //с ответом, я решил сделать также.
-            {                              //поэтому у меня два while - 1 отвечает"не хотите ли
-                if (tic == 1)              //вы закончить работу?"
-                    printf("%lf",res);     //2 - отвечает "хотите продолжить работу с ответом?"
-                scanf(" %c",&str);
+        printf("возвести 1 число в степень равную номеру 2 числа(1 ^ 2)\n");*/
+
+
+        	fscanf(input,"%lf",&res);             				//тк калькулятор win может продолжить работу
+            do                             				        //с ответом, я решил сделать также.
+            {                              				        //поэтому у меня два while - 1 отвечает"не хотите ли
+                /*if (tic == 1)              			    	//вы закончить работу?"
+                    fprintf(output,"%lf",res);*/     		    //2 - отвечает "хотите продолжить работу с ответом?"
+                fscanf(input," %c",&str);
                 if ((str != 'a') && (str != '!'))
-                    scanf("%lf",&b);
+                	fscanf(input,"%lf",&b);
                 switch (str)
-                {                               //есть возможность, если мы захотим
-                    case '+':                   //продолжить работу с циклом.
-                    {                           //высветится ответ, около которого мы можем написать
-                        res=res+b;              //необходимую операцию и 2 число
-                        printf("= %lf\n",res);
+                {                               						  //есть возможность, если мы захотим
+                    case '+':                   						  //продолжить работу с циклом.
+                    {                          							  //высветится ответ, около которого мы можем написать
+                        fprintf(output,"%lf + %lf = %lf\n",res,b,res+b);  //необходимую операцию и 2 число
+                        res=res+b;
                         break;
                     }
                     case '-':
                     {
-                        res=res-b;
-                        printf("= %lf\n",res);
+
+                    	fprintf(output,"%lf - %lf = %lf\n",res,b,res-b);  //необходимую операцию и 2 число
+                    	res=res-b;
                         break;
                     }
                     case '*':
                     {
-                        res=res*b;
-                        printf("= %lf\n",res);
+                    	fprintf(output,"%lf * %lf = %lf\n",res,b,res*b);  //необходимую операцию и 2 число
+                    	res=res*b;
                         break;
                     }
                     case '/':
                     {
-                        res=res/b;
-                        printf("= %lf\n",res);
+                    	fprintf(output,"%lf / %lf = %lf\n",res,b,res/b);  //необходимую операцию и 2 число
+                    	res=res/b;
                         break;
                     }
                     case 'a':
                     {
                         if (res<0)
-                            res=-res;
-                        printf("= %lf\n",res);
+                        {
+                        	fprintf(output,"abs(%lf) = %lf\n",res, -res);
+                        	res=-res;
+                        }
+                        else
+                        {
+                        	fprintf(output,"abs(%lf) = %lf\n",res, res);
+                        }
                         break;
                     }
                     case '!':
                     {
                         a=1;
                         if (res<0)
-                            printf("ты хочешь найти факториал отрицательного числа? я нет\n");
+                        	fprintf(output,"ты хочешь найти факториал отрицательного числа? я нет\n");
                         else if (res>12)
-                            printf("Я переиграл твоё переигрывание, я столько считать не буду '^'\n");
+                        	fprintf(output,"Я переиграл твоё переигрывание, я столько считать не буду '^'\n");
                         else
                             for (int i=1;i<=res;i++)
                             {
                                 a=a*i;
                             }
+                        fprintf(output,"%lf! = %lu\n",res,a);           // Help Vlada
                         res=a;
-                        printf("= %lf\n",res);
                         break;
                     }
                     case '^':
                     {
-                        c=1;                      //с возведением в степень была некая проблема
-                        if (b<0)                  //когда ты делишь 1 число кучу раз в цикле
-                        {                         //оно становится равным нулю.
-                            for (int i=0;i>b;i--) //ну я как CoolHackerMan нашаманил в коде и
-                            {                     //исправил ошибку: теперь у меня умножается в
-                                c=c*res;          //цикле кучу раз знаменатель, а потом 1 число
-                            }                     //делится на этот знаменатель
-                            res=1/c;
-                        }                         //Импровизируй, Адаптируйся, Преодолевай
-                        else if (b==0.0000000)
-                        {
-                            res=1;
+                        c=1;                      							//с возведением в степень была некая проблема
+                        if (b<0)                  							//когда ты делишь 1 число кучу раз в цикле
+                        {                         							//оно становится равным нулю.
+                            for (int i=0;i>b;i--) 							//ну я как CoolHackerMan нашаманил в коде и
+                            {                     							//исправил ошибку: теперь у меня умножается в
+                                c=c*res;          							//цикле кучу раз знаменатель, а потом 1 число
+                            }                     							//делится на этот знаменатель
+                            fprintf(output,"%lf ^ %lf = %lf\n",res, b, 1/c);
                         }
                         else
                         {
@@ -118,9 +131,16 @@ int main (int argc, char* argv[])
                             {
                                 c=c*res;
                             }
-                            res=c;
+                            fprintf(output,"%lf ^ %lf = %lf\n",res, b, c);
                         }
-                        printf("= %lf\n", res);
+                        if (b<0)
+                        {
+                        	res=1/c;
+                        }
+                        else
+                        {
+                        	res=c;
+                        }
                         break;
                     }
                     default:
@@ -128,116 +148,239 @@ int main (int argc, char* argv[])
                         break;
                     }
                 }
-                tic=1;
-                printf("Хотите продолжить вычисления с ответом? y - да, другие символы - выход\n");
-                scanf(" %c",&s);
-            } while ((s == 'y') && ((str != 'a') || (str != '!') || (str != '+') || (str != '/') || (str != '*') || (str != '^') || (str != '-')));
-            printf("Хотите завершить вычисления? e - выход из приложения, другие символы - продолжение\n");
-            scanf(" %c",&r);
+                //tic=1;
+
+                //printf("Хотите продолжить вычисления с ответом? y - да, другие символы - выход\n");
+
+                fscanf(input," %c",&workwithres);
+            } while (workwithres == 'y');
+
+            //printf("Хотите завершить вычисления? e - выход из приложения, другие символы - продолжение\n");
+
+            fscanf(input," %c",&res_s);
         }
-        while (r != 'e');
+        while (res_s != 'e');
     }
-    else if (a == 2)
+    else if (start == 'v')
     {
         float *massiv,*res;
         int size, num;
-        char str, r;              // <- о-операция
+        char str, res_v;              // <- о-операция
         do
         {
-        	printf("Введите размер вектора(>0) и количество векторов(>1): ");            //программа работает с 2 и более векторов
-        	scanf("%d %d",&size, &num);                                                  //может и с 1 но я не уверен, не проверял ))
+        	//printf("Введите размер вектора(>0) и количество векторов(>1): ");            //программа работает с 2 и более векторов
+        	fscanf(input,"%d %d",&size, &num);
         	//scanf("%i",&num);
-        	if ((size > 0) && (num > 1))
-        	{
+
         	massiv = malloc((size*num)*sizeof(int));
         	res = malloc(size *sizeof(int));
         	for (int i=1;i<num+1;i++)
         	{
-        		printf("Введите координаты %i вектора: ", i);
+        		//printf("Введите координаты %i вектора: ", i);
         		for (int j=0;j<size;j++)
             	{
-            		scanf("%f",&massiv[size*(i-1)+j]);
+        			fscanf(input,"%f",&massiv[size*(i-1)+j]);
             	}
-        		printf("\n");
+        		//printf("\n");
         	}
-        	printf("Введите операцию: ");
-        	scanf(" %c",&str);
+        	//printf("Введите операцию: ");
+        	fscanf(input," %c",&str);
+        	if ((size > 0) && (num > 2))
+        	{
         	switch(str)
         	{
-            	case '+':
-            	{
-                	printf("Результат сложения векторов: ");
-                	for (int j=0;j<size;j++)
-                    	res[j]=0;
-                	for (int i=0;i<num;i++)
-                	{
-                    	for (int j=0;j<size;j++)
-                    	{
-                        	res[j]=res[j] + massiv[size*i+j];
-                    	}
-                	}
-                	for (int j=0;j<size;j++)
-                    	printf("%f ", res[j]);
-                	printf("\n");
-                	break;
-            	}
-            	case '-':
-            	{
-                	printf("Результат разности векторов: ");
-                	for (int j=0;j<size;j++)       //суть в том, что вы можете использовать
-                    	res[j]=massiv[j];                  //больше 1 вектора в 1 операции
-                	for (int i=1;i<num;i++)
-                	{
-                    	for (int j=0;j<size;j++)
-                    	{
-                        	res[j]=res[j] - massiv[size*i+j];
-                    	}
-                	}
-                	for (int j=0;j<size;j++)
-                    	printf("%f ", res[j]);
-                	printf("\n");
-                	break;
-            	}
-            	case '*':
-            	{
-                	for (int j=0;j<size;j++)       //приведение ответа к единице, так же перед подсчётом
-                    	res[j]=1;                  //для скалярного произведения
-                	for (int i=0;i<num;i++)
-                	{
-                    	for (int j=0;j<size;j++)
-                    	{
-                        	res[j]=res[j] * massiv[size*i+j];
-                    	}
-                	}
-                	for (int j=1;j<size;j++)
-                    	res[0]=res[0]+res[j];
-                	printf("Результат скалярного произведения: %f \n", res[0]);
-                	break;
-            	}
-            	default:
-            	{
-                	printf("я на 50 шагов впереди тебя и всех остальных. Мой код не победить.(возможно)\n");
-            	}
+        	case '+':
+        	{
+        	    for (int j=0;j<size;j++)
+        	        res[j]=0;
+        	    for (int i=0;i<num;i++)
+        	    {
+        	    	fprintf(output,"(");
+        	        for (int j=0;j<size;j++)
+        	        {
+        	        	res[j]=res[j] + massiv[size*i+j];
+        	        	fprintf(output,"%f", massiv[size*i+j]);
+        	        	if (j != size-1)
+        	        		fprintf(output,", ");
+        	        }
+        	        fprintf(output,") ");
+        	        if (i != num-1)
+        	        	fprintf(output,"+ ");
+        	        else
+        	        	fprintf(output,"= ");
+        	    }
+        	    fprintf(output,"(");
+        	    for (int j=0;j<size;j++)
+        	    {
+        	    	fprintf(output,"%f", res[j]);
+        	        if (j != size-1)
+        	        	fprintf(output,", ");
+        	    }
+        	    fprintf(output,")\n");
+        	    break;
         	}
+        	case '-':
+        	{
+        	    for (int j=0;j<size;j++)
+        	        res[j]=0;
+        	    for (int i=0;i<num;i++)
+        	    {
+        	    	fprintf(output,"(");
+        	        for (int j=0;j<size;j++)
+        	        {
+        	        	if (i==0)
+        	        		res[j]=massiv[j];
+        	        	else
+        	        		res[j]=res[j] - massiv[size*i+j];
+        	        	fprintf(output,"%f", massiv[size*i+j]);
+        	        	if (j != size-1)
+        	        		fprintf(output,", ");
+        	        }
+        	        fprintf(output,") ");
+        	        if (i != num-1)
+        	        	fprintf(output,"- ");
+        	        else
+        	        	fprintf(output,"= ");
+        	    }
+        	    fprintf(output,"(");
+        	    for (int j=0;j<size;j++)
+        	    {
+        	    	fprintf(output,"%f", res[j]);
+        	        if (j != size-1)
+        	        	fprintf(output,", ");
+        	    }
+        	    fprintf(output,")\n");
+        	    break;
+        	}
+            default:
+            {
+            	fprintf(output,"я на 50 шагов впереди тебя и всех остальных. Мой код не победить.(возможно)\n");
+            	break;
+            }
+        	}  //<- switch
         	free(massiv);
         	free(res);
-        	printf("Хотите завершить вычисления? e - выход из приложения, другие символы - продолжение\n");
-        	scanf(" %c",&r);
+			//printf("Хотите завершить вычисления? e - выход из приложения, другие символы - продолжение\n");
+        	fscanf(input," %c",&res_v);
+        	}
+        	else if ((size > 0) && (num == 2))
+        	{
+        		switch (str)
+        		{
+        			case '*':                   //приведение ответа к единице, так же перед подсчётом
+        			{                           //для скалярного произведения
+        				for (int j=0;j<size;j++)
+        					res[j]=1;
+        				for (int i=0;i<num;i++)
+        				{
+        					fprintf(output,"(");
+        					for (int j=0;j<size;j++)
+        					{
+        						res[j]=res[j] * massiv[size*i+j];
+        						fprintf(output,"%f", massiv[size*i+j]);
+        						if (j != size-1)
+        							fprintf(output,", ");
+        					}
+        					fprintf(output,") ");
+        					if (i != num-1)
+        						fprintf(output,"* ");
+        					else
+        						fprintf(output,"= ");
+        				}
+        				for (int j=1;j<size;j++)
+        				    res[0]=res[0]+res[j];
+        				fprintf(output,"%f\n", res[0]);
+        				break;
+        			}
+        			case '+':
+        			{
+        				for (int j=0;j<size;j++)
+        				    res[j]=0;
+        				for (int i=0;i<num;i++)
+        				{
+        					fprintf(output,"(");
+        					for (int j=0;j<size;j++)
+        				    {
+        				        res[j]=res[j] + massiv[size*i+j];
+        				        fprintf(output,"%f", massiv[size*i+j]);
+        				        if (j != size-1)
+        				        	fprintf(output,", ");
+        				    }
+        					fprintf(output,") ");
+        					if (i != num-1)
+        						fprintf(output,"+ ");
+        					else
+        						fprintf(output,"= ");
+        				}
+        				fprintf(output,"(");
+        				for (int j=0;j<size;j++)
+        				{
+        					fprintf(output,"%f", res[j]);
+        				    if (j != size-1)
+        				    	fprintf(output,", ");
+        				}
+        				fprintf(output,")\n");
+        				break;
+        			}
+        			case '-':
+        			{
+        			    for (int j=0;j<size;j++)
+        			        res[j]=0;
+        			    for (int i=0;i<num;i++)
+        			    {
+        			    	fprintf(output,"(");
+        			        for (int j=0;j<size;j++)
+        			        {
+        			        	if (i==0)
+        			        	{
+        			        		res[j]=massiv[j];
+        			        	}
+        			        	else
+        			        		res[j]=res[j] - massiv[size*i+j];
+        			        	fprintf(output,"%f", massiv[size*i+j]);
+        			        	if (j != size-1)
+        			        		fprintf(output,", ");
+        			        	}
+        			        	fprintf(output,") ");
+        			        	if (i != num)
+        			        		fprintf(output,"- ");
+        			        	else
+        			        		fprintf(output,"= ");
+        			        }
+        			    	fprintf(output,"(");
+        			        for (int j=0;j<size;j++)
+        			        {
+        			        	fprintf(output,"%f", res[j]);
+        			        if (j != size-1)
+        			        	fprintf(output,", ");
+        			    }
+        			    fprintf(output,")\n");
+        			    break;
+        			}
+        			default:
+        			{
+        				fprintf(output,"я на 50 шагов впереди тебя и всех остальных. Мой код не победить.(возможно)\n");
+        			}
+        		} //<- switch
+        		free(massiv);
+        		free(res);
+        		//printf("Хотите завершить вычисления? e - выход из приложения, другие символы - продолжение\n");
+        		fscanf(input," %c",&res_v);
         	}
         	else
         	{
-        		printf ("Нужно вводить размер вектора(>0) и количество векторов(>1)!!!\n");
+        		fprintf(output,"Нужно вводить размер вектора(>0) и количество векторов(>1)!!!\n");
         	}
         }
-        while (r != 'e');
+        while (res_v != 'e');
     }
     else
     {
-        printf("Программа это запомнит.\n");
-        printf("Теперь программа отказывается вам помогать.");
+    	fprintf(output,"Программа это запомнит.\n");
+    	fprintf(output,"Теперь программа отказывается вам помогать.");
     }
-    printf("Хотите завершить пользование калькулятором? e - выход из приложения, другие символы - продолжение\n");
-    scanf (" %c",&end);
+    //printf("Хотите завершить пользование калькулятором? e - выход из приложения, другие символы - продолжение\n");
+    fscanf(input," %c",&end);
 	}
     while (end != 'e');
     return 0;
