@@ -19,7 +19,7 @@ int main (int argc, char* argv[])
     setvbuf(stdout, NULL, _IONBF, 0);
     setvbuf(stderr, NULL, _IONBF, 0);
 
-    char input[80], output[80], BackToTheFutures, theSameFile;
+    char file_check, input[80], output[80], BackToTheFutures, theSameFile;
     int codeOffended = 0, stepRepeat = 0;
     do
     {
@@ -29,10 +29,20 @@ int main (int argc, char* argv[])
         printf("\n");
         FILE *inputFile,*outputFile;
         inputFile = fopen(input, "r");
-        while((inputFile == NULL) || (!feof(inputFile)) || (codeOffended == 2))
+        fscanf(inputFile," %c",&file_check);
+        while((inputFile == NULL) || (feof(inputFile)) || (codeOffended == 2))
         {
+
             if (feof(inputFile))
-                printf("ты как из пустого файла решил читать? А ну переделывай\n");
+            {
+            	printf("ты как из пустого файла решил читать? А ну переделывай\n");
+            	printf("Введите название файла из которого будет происходить чтение: ");
+            	scanf(" %s", input);
+            	inputFile = fopen(input, "r");
+            	printf("\n");
+            	fscanf(inputFile," %c",&file_check);
+            }
+
             else if (codeOffended == 2)
             {
                 printf("Код обиделся, теперь произойдёт аннигиляция. Удачного дня");
