@@ -1,6 +1,20 @@
-// Тестовый Вариант, где испоьзуется не вся проверка, а только выборочная
-#include <stdio.h>
+// испоьзовать input.txt
+
+/*
+Во первых, вы должны обладать ссылкой (https://github.com/Shin0kari/Calculator/).
+Теперь вы ей обладаете, самое сложное уже выполнено, осталось зайти в Eclipse, зайти в workspace(свой или новый, не важно).
+Как откроется IDE сверху выбираем Window->Percpective->Open Percpective->Other...->Git.
+Откроется специальное окно, нужно нажать clone git repository(в ряду с желтыми значками).
+Появится окно, в нем нужно вбить сслыку, либо до откытия clone git repository сохранить в буфер обмена ссылку и Eclipse все сделает сам(Authentication заполнять не нужно, как и все остально кроме location, и в Connection выбрать протокол https).
+Жмем Next, снова жмем Next, выбираем путь, где будет хранится репозиторий из гит на вашем компьютере(Путь должен содержать только английские буквы, и не должен содержать пробелы), а также желательно нажать на галочку в import all esisting Eclipse project after clone finishes.
+Жмем finish и видим, что появилась папка в git repositories заходим в эту папку, дальше Working tree.
+Видим папку Aaaa, жмем 1 раз на нее, потом правой кнопкой. И жмем Import Project.
+Появляется окно, в нем ничего выбирать не нужно, просто если Eclipse выбрал не ту папку, то стоит ее редактировать.
+Жмем finish и уже проект появляется в C/C++. Теперь вы можете смотреть код(Aaaa/src/Aaaa.c)
+*/
+
 #include <stdlib.h>
+#include <stdio.h> //решил пофлексить Каспер Дмитрий 1 курс 4 группа(ИВТ)
 
 typedef struct numbers // Очередь для чисел
 {
@@ -49,7 +63,7 @@ typedef struct calculator // сама структура калькулятор�
 
 calculator calc; // для удобства в обращении
 
-char *pop_list_out(calculator *results) // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+char *pop_list_out(calculator *results) // вроде исправлял, но пока оставлю !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 {
     char *line;
     if (results->head_res == NULL || results->current_res == NULL)
@@ -160,9 +174,25 @@ void pop_list_in(calculator *current)
     }
     term_s->next = current->current_settings->next;
     term_n->next = current->current_n->next;
-    free(current->current_settings);
-    free(current->current_n->number_v);
-    free(current->current_n);
+    if (current->current_n->number_v != NULL) // очищение массива для вект кальк если он есть
+    {
+        free(current->current_n->number_v);
+        current->current_n->number_v = NULL;
+    }
+    if (current->current_settings->current_s != NULL) // очищение настроек обычного кальк
+    {
+        free(current->current_settings->current_s);
+        current->current_settings->current_s = NULL;
+    }
+    if (current->current_settings->current_v != NULL) // очищение настроек вект кальк
+    {
+        free(current->current_settings->current_v);
+        current->current_settings->current_v = NULL;
+    }
+    free(current->current_settings); // очищение настроек общее
+    free(current->current_n);        // очищение чисел общее
+    current->current_settings = NULL;
+    current->current_n = NULL;
     current->current_settings = term_s;
     current->current_n = term_n;
 }
@@ -179,86 +209,95 @@ void deleteList()
     }
 }
 
-void fill_list(calculator *current, FILE *inputFile)
+void fill_list(calculator *example, FILE *inputFile, char *answer, int *future)
 {
-    int check_future_l;
-    char check_work_with_Answer_l, type_l;
+
+    char type_l;
 
     if (calc.head_settings == NULL)
     {
-        current->current_settings = malloc(sizeof(current->current_settings)); //нужно всё инициализировать
-        current->current_n = malloc(sizeof(current->current_n));
-        check_work_with_Answer_l = ' ';
-        check_future_l = 0;
+        example->current_settings = malloc(sizeof(settings_calc)); //нужно всё инициализировать
+        example->current_n = malloc(sizeof(numbers));
+        answer[0] = 'n';
+        future[0] = 0;
     }
 
-    if (check_future_l == 0)
+    if (future[0] == 0)
     {
-        fscanf(inputFile, " %c ", &current->current_settings->calc_type);
-        type_l = current->current_settings->calc_type;
-        check_future_l = 1;
+        fscanf(inputFile, " %c ", &example->current_settings->calc_type);
+        type_l = example->current_settings->calc_type;
+        future[0] = 1;
     }
     switch (type_l)
     {
     case 'v':
-        current->current_settings->current_v = malloc(sizeof(current->current_settings->current_v));
-        fscanf(inputFile, "%d", &current->current_settings->current_v->num);
-        fscanf(inputFile, "%d", &current->current_settings->current_v->size);
-        current->current_n->number_v = malloc((current->current_settings->current_v->num * current->current_settings->current_v->size) * sizeof(double));
-        for (int i = 1; i < current->current_settings->current_v->num + 1; i++)
+        example->current_settings->current_s = NULL;
+        example->current_settings->current_v = malloc(sizeof(v_calc));
+        fscanf(inputFile, "%d", &example->current_settings->current_v->size);
+        fscanf(inputFile, "%d", &example->current_settings->current_v->num);
+        example->current_n->number_v = malloc((example->current_settings->current_v->num * example->current_settings->current_v->size) * sizeof(double));
+        for (int i = 1; i < example->current_settings->current_v->num + 1; i++)
         {
             //printf("Введите координаты %i вектора: ", i);
-            for (int j = 0; j < current->current_settings->current_v->size; j++)
+            for (int j = 0; j < example->current_settings->current_v->size; j++)
             {
-                fscanf(inputFile, "%lf", &current->current_n->number_v[current->current_settings->current_v->size * (i - 1) + j]);
+                fscanf(inputFile, "%lf", &example->current_n->number_v[example->current_settings->current_v->size * (i - 1) + j]);
             }
         }
-        fscanf(inputFile, " %c ", &current->current_settings->current_v->operations); //какая операция с векторами
-        fscanf(inputFile, " %c ", &current->current_settings->close_calculator_subspecies);
-        if (current->current_settings->close_calculator_subspecies == 'e')
+        fscanf(inputFile, " %c ", &example->current_settings->current_v->operations); //какая операция с векторами
+        fscanf(inputFile, " %c ", &example->current_settings->close_calculator_subspecies);
+        if (example->current_settings->close_calculator_subspecies == 'e')
         {
-            fscanf(inputFile, " %c ", &current->current_settings->close_file);
+            fscanf(inputFile, " %c ", &example->current_settings->close_file);
         }
         break;
     case 's':
-        current->current_settings->current_s = malloc(sizeof(current->current_settings->current_s));
-        current->current_settings->current_v = NULL;
-        if (check_work_with_Answer_l != 'y')
+        example->current_settings->current_s = malloc(sizeof(s_calc));
+        example->current_settings->current_v = NULL;
+        example->current_n->number_v = NULL;
+        if (answer[0] != 'y') // check_work_with_Answer_l: 1 == y, 0 == n;
         {
-            fscanf(inputFile, "%lf", &current->current_n->number_s1);
+            fscanf(inputFile, "%lf", &example->current_n->number_s1);
         }
-        fscanf(inputFile, " %c ", &current->current_settings->current_s->operations);
-        if (!((current->current_settings->current_s->operations == '!') || (current->current_settings->current_s->operations == 'a')))
+        fscanf(inputFile, " %c ", &example->current_settings->current_s->operations);
+        if (!((example->current_settings->current_s->operations == '!') || (example->current_settings->current_s->operations == 'a')))
         {
-            fscanf(inputFile, "%lf", &current->current_n->number_s2);
+            fscanf(inputFile, "%lf", &example->current_n->number_s2);
         }
-        fscanf(inputFile, " %c ", &current->current_settings->current_s->use_answer);
-        check_work_with_Answer_l = current->current_settings->current_s->use_answer;
-        if (current->current_settings->current_s->use_answer == 'n')
+        fscanf(inputFile, " %c ", &example->current_settings->current_s->use_answer);
+        if (example->current_settings->current_s->use_answer == 'y')
         {
-            fscanf(inputFile, " %c ", &current->current_settings->close_calculator_subspecies);
-            if (current->current_settings->close_calculator_subspecies == 'e')
+            answer[0] = 'y';
+        }
+        else
+        {
+            answer[0] = 'n';
+        }
+        //check_work_with_Answer_l = current->current_settings->current_s->use_answer; // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        if (example->current_settings->current_s->use_answer == 'n')
+        {
+            fscanf(inputFile, " %c ", &example->current_settings->close_calculator_subspecies);
+            if (example->current_settings->close_calculator_subspecies == 'e')
             {
-                fscanf(inputFile, " %c ", &current->current_settings->close_file);
-                check_future_l = 0; // новый калькулятор
+                fscanf(inputFile, " %c ", &example->current_settings->close_file);
+                future[0] = 0; // новый калькулятор
             }
         }
         break;
     }
 }
 
-void push_back(calculator *current)
+void push_back(calculator *current, char *answer, int *future)
 {
-    int check_future;
-    char check_work_with_Answer, type; // нужна для такого ввода s + 2 n n   <-- т.е. мы работаем с ответом из прошлого
-    if (calc.head_settings == NULL)    // начинаем проверку с NULL, потом current
+    char type;                      // нужна для такого ввода s + 2 n n   <-- т.е. 1 значение берётся из прошлого
+    if (calc.head_settings == NULL) // начинаем проверку с NULL, потом current
     {
-        calc.head_settings = malloc(sizeof(calc.head_settings)); //нужно всё инициализировать
-        calc.head_n = malloc(sizeof(calc.head_n));
+        calc.head_settings = malloc(sizeof(settings_calc)); //нужно всё инициализировать
+        calc.head_n = malloc(sizeof(numbers));
         calc.current_n = calc.head_n;
         calc.current_settings = calc.head_settings;
-        check_work_with_Answer = ' ';
-        check_future = 0;
+        answer[0] = ' '; // у меня
+        future[0] = 0;
     }
     else
     {
@@ -276,19 +315,19 @@ void push_back(calculator *current)
     }
     calc.current_settings->next = NULL;
     calc.current_n->next = NULL;
-    if (check_future == 0) //  начинаем заполнять список по элементам
+    if (future[0] == 0) //  начинаем заполнять список по элементам
     {
         calc.current_settings->calc_type = current->current_settings->calc_type;
         type = calc.current_settings->calc_type;
-        check_future = 1; // использовать старый калькулятор
+        future[0] = 1; // использовать старый калькулятор
     }
     switch (type)
     {
     case 'v':
-        calc.current_settings->current_v = malloc(sizeof(calc.current_settings->current_v));
+        calc.current_settings->current_v = malloc(sizeof(v_calc));
         calc.current_settings->current_s = NULL;
-        calc.current_settings->current_v->num = current->current_settings->current_v->num;
         calc.current_settings->current_v->size = current->current_settings->current_v->size;
+        calc.current_settings->current_v->num = current->current_settings->current_v->num;
         calc.current_n->number_v = malloc((calc.current_settings->current_v->num * calc.current_settings->current_v->size) * sizeof(double));
         for (int i = 1; i < calc.current_settings->current_v->num + 1; i++)
         {
@@ -306,9 +345,10 @@ void push_back(calculator *current)
         }
         break;
     case 's':
-        calc.current_settings->current_s = malloc(sizeof(calc.current_settings->current_s));
+        calc.current_settings->current_s = malloc(sizeof(s_calc));
         calc.current_settings->current_v = NULL;
-        if (check_work_with_Answer != 'y')
+        calc.current_n->number_v = NULL;
+        if (answer[0] != 'y')
         {
             calc.current_n->number_s1 = current->current_n->number_s1;
         }
@@ -318,14 +358,21 @@ void push_back(calculator *current)
             calc.current_n->number_s2 = current->current_n->number_s2;
         }
         calc.current_settings->current_s->use_answer = current->current_settings->current_s->use_answer;
-        check_work_with_Answer = calc.current_settings->current_s->use_answer;
+        if (calc.current_settings->current_s->use_answer == 'y')
+        {
+            answer[0] = 'y';
+        }
+        else
+        {
+            answer[0] = 'n';
+        }
         if (calc.current_settings->current_s->use_answer == 'n')
         {
             calc.current_settings->close_calculator_subspecies = current->current_settings->close_calculator_subspecies;
             if (calc.current_settings->close_calculator_subspecies == 'e')
             {
                 calc.current_settings->close_file = current->current_settings->close_file;
-                check_future = 0; // новый калькулятор
+                future[0] = 0; // новый калькулятор
             }
         }
         break;
@@ -348,77 +395,605 @@ int counter(unsigned long int i)
     return counter;
 }
 
-int main(int argc, char const *argv[])
+int main(int argc, char *argv[])
 {
     setvbuf(stdout, NULL, _IONBF, 0);
     setvbuf(stderr, NULL, _IONBF, 0);
 
-    calc.head_settings = NULL;
-    calc.head_n = NULL;
-    calc.head_res = NULL;
-    char file_check, input[80], output[80];
-    printf("Введите название файла из которого будет происходить\n");
-    printf("чтение(максимальная длина названия 80 символов): ");
-    scanf(" %s", input);
-    printf("\n");
-    FILE *inputFile, *outputFile;
-    inputFile = fopen(input, "r");
-    fscanf(inputFile, " %c", &file_check);
+    char file_check, input[80], output[80], BackToTheFutures, theSameFile;
+    int codeOffended = 0, stepRepeat = 0;
 
-    printf("Введите название файла в который будет происходить\n");
-    printf("запись(максимальная длина названия 80 символов): ");
-    scanf(" %s", output);
-    printf("\n");
-    outputFile = fopen(output, "w");
-
-    while (!feof(inputFile))
-    {                                        // Заполнение всего листа settings
-        calculator example_list;             //  хз
-        fill_list(&example_list, inputFile); //inputFile.txt
-        push_back(&example_list);
-    }
-    fclose(inputFile);
-
-    // проверка на загрузку в res
-
-    calc.current_settings = calc.head_settings;
-    calc.current_n = calc.head_n;
-    calc.current_res = calc.head_res; // хз нужна ли !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! <- это для меня потом для проверки
-
-    char start;
-    start = calc.current_settings->calc_type;
-
-    if (start == 's')
+    do
     {
-        unsigned long int a;
-        double res, b, c;
-        char str, workWithRes, res_s;
-        char *line_expression;
-        calc.current_n->number_v = NULL;
-        res = calc.current_n->number_s1;
-        str = calc.current_settings->current_s->operations;
-        if ((str != 'a') && (str != '!'))
-            b = calc.current_n->number_s2;
-        switch (str)
-        {                                                                                                                                 //есть возможность, если мы захотим
-        case '+':                                                                                                                         //продолжить работу с циклом.
-        {                                                                                                                                 //высветится ответ, около которого мы можем написать
-            line_expression = malloc((counter((int)res) + counter((int)b) + counter((int)(res + b)) + 3 * 7 + 2 * 3 + 1) * sizeof(char)); // Выделение памяти как и в след. вариантах //необходимую операцию и 2 число
+        calc.head_settings = NULL;
+        calc.head_n = NULL;
+        calc.head_res = NULL;
 
-            sprintf(line_expression, "%lf + %lf = %lf", res, b, res + b);
-            res = res + b;
-            break;
+        printf("Введите название файла из которого будет происходить\n");
+        printf("чтение(максимальная длина названия 80 символов): ");
+        scanf(" %s", input);
+        printf("\n");
+        FILE *inputFile, *outputFile;
+        inputFile = fopen(input, "r");
+        fscanf(inputFile, " %c", &file_check);
+        while ((inputFile == NULL) || (feof(inputFile)) || (codeOffended == 2) || (file_check != 'o'))
+        {
+
+            if (feof(inputFile))
+            {
+                printf("ты как из пустого файла решил читать? А ну переделывай\n");
+                printf("Введите название файла из которого будет происходить чтение: ");
+                scanf(" %s", input);
+                inputFile = fopen(input, "r");
+                printf("\n");
+                fscanf(inputFile, " %c", &file_check);
+            }
+
+            else if (codeOffended == 2)
+            {
+                printf("Код обиделся, теперь произойдёт аннигиляция. Удачного дня");
+                return 0;
+            }
+            else
+            {
+                printf("Код это запомнит? Такого файла не существует\n");
+                codeOffended++;
+                printf("Введите название файла из которого будет происходить чтение: ");
+                scanf(" %s", input);
+                inputFile = fopen(input, "r");
+                printf("\n");
+                fscanf(inputFile, " %c", &file_check);
+            }
         }
-        } // закрытие switch
+        codeOffended = 0;    // это для проверки на дурака:)
+        if (stepRepeat == 1) // файл для записи на 2 кругу
+        {
+            printf("Хотите ли вы вывести ответ в тот же файл?(y-\"yes\";n-\"no\"): ");
+            scanf(" %c", &theSameFile);
+            printf("\n");
+            while ((theSameFile != 'y') && (theSameFile != 'n')) // Проверка на корректно введенное y или n
+            {
+                printf("Да ну ладно, нормально ведь общались.\n");
+                printf("Другие ответы не принимаются.\n");
+                printf("Хотите ли вы вывести ответ в тот же файл?(y-\"yes\";n-\"no\"): ");
+                scanf(" %c", &theSameFile);
+            }
+        }
+        if ((stepRepeat == 0) || (theSameFile == 'n')) // файл для записи на 1 кругу
+        {
+            printf("Введите название файла в который будет происходить\n");
+            printf("запись(максимальная длина названия 80 символов): ");
+            scanf(" %s", output);
+            outputFile = fopen(output, "w");
+        }
 
-        pop_list_in(&calc);
+        //место для части кода, где в список будут записываться числа
+
+        /*printf("Выберите, что использовать: (s) - simple calculator\n");     //<- из консольного калькулятора
+        printf("Выберите, что использовать: (v) - vector calculator\n");*/
+        int *check_future, *check_future_1;
+        char end;
+        char *line_expression, *check_answer, *check_answer_1;
+
+        check_future = malloc(1 * sizeof(int));
+        check_future_1 = malloc(1 * sizeof(int));
+        check_answer = malloc(1 * sizeof(char));
+        check_answer_1 = malloc(1 * sizeof(char));
+
+        while (!feof(inputFile))
+        {                            // Заполнение всего листа settings
+            calculator example_list; // для создания 1 стр
+            fill_list(&example_list, inputFile, check_answer, check_future);
+            push_back(&example_list, check_answer_1, check_future_1);
+        }
+
+        free(check_future);
+        free(check_future_1);
+        free(check_answer);
+        free(check_answer_1);
+
+        fclose(inputFile);
+
+        calc.current_settings = calc.head_settings;
+        calc.current_n = calc.head_n;
+        calc.current_res = calc.head_res; // хз нужна ли эта строка !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+        do
+        {
+            char start;
+            start = calc.current_settings->calc_type;
+
+            if (start == 's')
+            {
+                //Задумка была такая: сделать калькулятор
+                //не нагруженным в использовании, похожим
+                //на калькулятор в Windows
+                unsigned long int a;
+                //int tic;
+                double res, b, c;
+                char str, workWithRes, res_s;
+                do
+                {
+                    //tic=0;
+
+                    /*printf("вы можете: взять факториал 1 числа(3 !), модуль 1 числа(3 a)\n");      //<- из консольного калькулятора
+                    printf("сложить 2 числа(1 + 2), поделить(1 / 2), умножить(1 * 1)\n");
+                    printf("возвести 1 число в степень равную номеру 2 числа(1 ^ 2)\n");*/
+
+                    res = calc.current_n->number_s1; //тк калькулятор win может продолжить работу
+
+                    do //с ответом, я решил сделать также.
+                    {  //поэтому у меня два while - 1 отвечает"не хотите ли
+                        /*if (tic == 1)              			    	//вы закончить работу?"
+                        fprintf(outputFile,"%lf",res);*/
+                        //2 - отвечает "хотите продолжить работу с ответом?"
+
+                        str = calc.current_settings->current_s->operations;
+                        if ((str != 'a') && (str != '!'))
+                            b = calc.current_n->number_s2;
+
+                        switch (str)
+                        {
+                        case '+':
+                        {
+                            line_expression = malloc((counter((int)res) + counter((int)b) + counter((int)(res + b)) + 3 * 7 + 2 * 3 + 1) * sizeof(char)); // Выделение памяти как и в след. вариантах
+                            sprintf(line_expression, "%lf + %lf = %lf", res, b, res + b);
+                            res = res + b;
+                            break;
+                        }
+                        case '-':
+                        {
+                            line_expression = malloc((counter((int)res) + counter((int)b) + counter((int)(res + b)) + 3 * 7 + 2 * 3 + 1) * sizeof(char)); // Выделение памяти как и в след. вариантах
+                            sprintf(line_expression, "%lf - %lf = %lf", res, b, res - b);
+                            res = res - b;
+                            break;
+                        }
+                        case '*':
+                        {
+                            line_expression = malloc((counter((int)res) + counter((int)b) + counter((int)(res + b)) + 3 * 7 + 2 * 3 + 1) * sizeof(char)); // Выделение памяти как и в след. вариантах
+                            sprintf(line_expression, "%lf * %lf = %lf", res, b, res * b);
+                            res = res * b;
+                            break;
+                        }
+                        case '/':
+                        {
+                            line_expression = malloc((counter((int)res) + counter((int)b) + counter((int)(res + b)) + 3 * 7 + 2 * 3 + 1) * sizeof(char)); // Выделение памяти как и в след. вариантах
+                            sprintf(line_expression, "%lf / %lf = %lf", res, b, res / b);
+                            res = res / b;
+                            break;
+                        }
+                        case 'a':
+                        {
+                            if (res < 0)
+                            {
+                                line_expression = malloc((counter((int)res) + counter((int)(res)) + 2 * 7 + 5 + 3 + 1) * sizeof(char)); // Выделение памяти как и в след. вариантах
+                                sprintf(line_expression, "abs(%lf) = %lf", res, -res);
+                                res = -res;
+                                break;
+                            }
+                            else
+                            {
+                                line_expression = malloc((counter((int)res) + counter((int)(res)) + 2 * 7 + 5 + 3 + 1) * sizeof(char));
+                                sprintf(line_expression, "abs(%lf) = %lf", res, res);
+                            }
+                            break;
+                        }
+                        case '!':
+                        {
+                            a = 1;
+                            if (res < 0)
+                                sprintf(line_expression, "ты хочешь найти факториал отрицательного числа? я нет");
+                            else if (res > 12)
+                                sprintf(line_expression, "Я переиграл твоё переигрывание, я столько считать не буду '^'");
+                            else
+                                for (int i = 1; i <= res; i++)
+                                {
+                                    a = a * i;
+                                }
+                            line_expression = malloc((counter((int)res) + counter((int)(a)) + 2 * 7 + 4 + 1) * sizeof(char));
+                            sprintf(line_expression, "%lf! = %lu", res, a);
+                            res = a;
+                            break;
+                        }
+                        case '^':
+                        {
+                            c = 1;                          //с возведением в степень была некая проблема
+                            if (b < 0)                      //когда ты делишь 1 число кучу раз в цикле
+                            {                               //оно становится равным нулю.
+                                for (int i = 0; i > b; i--) //ну я как CoolHackerMan нашаманил в коде и
+                                {                           //исправил ошибку: теперь у меня умножается в
+                                    c = c * res;            //цикле кучу раз знаменатель, а потом 1 число
+                                }                           //делится на этот знаменатель
+
+                                line_expression = malloc((counter((int)res) + counter((int)b) + counter((int)(1 / c)) + 3 * 7 + 2 * 3 + 1) * sizeof(char)); // Выделение памяти как и в след. вариантах
+                                sprintf(line_expression, "%lf ^ %lf = %lf", res, b, 1 / c);
+                            }
+                            else
+                            {
+                                for (int i = 1; i <= b; i++)
+                                {
+                                    c = c * res;
+                                }
+                                line_expression = malloc((counter((int)res) + counter((int)b) + counter((int)(c)) + 3 * 7 + 2 * 3 + 1) * sizeof(char)); // Выделение памяти как и в след. вариантах
+                                sprintf(line_expression, "%lf ^ %lf = %lf", res, b, c);
+                            }
+                            if (b < 0)
+                            {
+                                res = 1 / c;
+                            }
+                            else
+                            {
+                                res = c;
+                            }
+                            break;
+                        }
+                        default:
+                        {
+                            break;
+                        }
+                        }
+                        //tic=1;
+
+                        //printf("Хотите продолжить вычисления с ответом? y - да, другие символы - выход\n");
+
+                        workWithRes = calc.current_settings->current_s->use_answer;
+                        if (workWithRes == 'y')
+                        {
+                            push_list_out(line_expression, &calc);
+                        }
+                        if (workWithRes == 'y')
+                        {
+                            calc.current_settings = calc.current_settings->next;
+                            calc.current_n = calc.current_n->next;
+                        }
+                    } while (workWithRes == 'y');
+
+                    //printf("Хотите завершить вычисления? e - выход из приложения, другие символы - продолжение\n");
+
+                    res_s = calc.current_settings->close_calculator_subspecies;
+                    if (res_s != 'e')
+                    {
+                        calc.current_settings = calc.current_settings->next;
+                        calc.current_n = calc.current_n->next;
+                    }
+                    if (res_s != 'e')
+                    {
+                        push_list_out(line_expression, &calc);
+                    }
+                } while (res_s != 'e');
+            }
+            else if (start == 'v')
+            {
+                float *massiv, *res;
+                int size, num;
+                int sizeVector;  // для определения размера вектора
+                char str, res_v; // <- о-операция
+
+                do
+                {
+                    //printf("Введите размер вектора(>0) и количество векторов(>1): ");            //программа работает с 2 и более векторов
+                    //fscanf(inputFile, "%d %d", &size, &num);
+                    //scanf("%i",&num);
+                    size = calc.current_settings->current_v->size;
+                    num = calc.current_settings->current_v->num;
+                    sizeVector = 0;
+
+                    massiv = malloc((size * num) * sizeof(double));
+                    res = malloc(size * sizeof(double));
+                    for (int i = 1; i < num + 1; i++)
+                    {
+                        //printf("Введите координаты %i вектора: ", i);
+                        for (int j = 0; j < size; j++)
+                        {
+                            massiv[size * (i - 1) + j] = calc.current_n->number_v[calc.current_settings->current_v->size * (i - 1) + j];
+                            sizeVector += counter((int)massiv[size * (i - 1) + j]);
+                        }
+                        //printf("\n");
+                    }
+                    //printf("Введите операцию: ");
+                    str = calc.current_settings->current_v->operations;
+
+                    if ((size > 0) && (num > 2))
+                    {
+                        switch (str)
+                        {
+                        case '+':
+                        {
+                            for (int j = 0; j < size; j++) // обнуление ответа
+                                res[j] = 0;
+
+                            for (int i = 0; i < num; i++) // подсчёт ответа, делаем отдельно, чтобы узнать, сколько места потом заберёт ответ
+                            {
+                                for (int j = 0; j < size; j++)
+                                {
+                                    res[j] = res[j] + massiv[size * i + j];
+                                    if (i + 1 >= num)
+                                        sizeVector += counter((int)res[j]);
+                                }
+                            }
+
+                            line_expression = malloc((sizeVector + 1 + num * size * 7 + (num - 1) * 5 + 2 * (size - 1) * num + 4 + 1 + size * 7 + (size - 1) + 1 + 1) * sizeof(char));
+                            // sizeV - количество места всех чисел до "," + первая ( + кол-во символов после "," для чисел до ответа + внутри векторов ,_ +
+                            // + )_=_ + ( + кол-во символов после "," для чисел в ответе + внутри вектора ,_ в ответе + ) + _
+                            sprintf(line_expression, "");
+                            for (int i = 0; i < num; i++)
+                            {
+                                sprintf(line_expression, "%s(", line_expression);
+                                for (int j = 0; j < size; j++)
+                                {
+                                    sprintf(line_expression, "%s%f", line_expression, massiv[size * i + j]);
+                                    if (j != size - 1)
+                                        sprintf(line_expression, "%s, ", line_expression);
+                                }
+                                sprintf(line_expression, "%s)", line_expression);
+                                if (i != num - 1)
+                                    sprintf(line_expression, "%s + ", line_expression);
+                                else
+                                    sprintf(line_expression, "%s = ", line_expression);
+                            }
+
+                            sprintf(line_expression, "%s(", line_expression);
+                            for (int j = 0; j < size; j++)
+                            {
+                                sprintf(line_expression, "%s%f", line_expression, res[j]);
+                                if (j != size - 1)
+                                    sprintf(line_expression, "%s, ", line_expression);
+                            }
+                            sprintf(line_expression, "%s)", line_expression);
+                            break;
+                        }
+                        case '-':
+                        {
+                            for (int j = 0; j < size; j++)
+                                res[j] = 0;
+                            for (int i = 0; i < num; i++)
+                            {
+                                for (int j = 0; j < size; j++)
+                                {
+                                    if (i == 0)
+                                    {
+                                        res[j] = massiv[j];
+                                        if (i + 1 >= num)
+                                            sizeVector += counter((int)res[j]);
+                                    }
+                                    else
+                                    {
+                                        res[j] = res[j] - massiv[size * i + j];
+                                        if (i + 1 >= num)
+                                            sizeVector += counter((int)res[j]);
+                                    }
+                                }
+                            }
+
+                            line_expression = malloc((sizeVector + 1 + num * size * 7 + (num - 1) * 5 + 2 * (size - 1) * num + 4 + 1 + size * 7 + (size - 1) + 1 + 1) * sizeof(char));
+                            sprintf(line_expression, "");
+
+                            for (int i = 0; i < num; i++)
+                            {
+                                sprintf(line_expression, "%s(", line_expression);
+                                for (int j = 0; j < size; j++)
+                                {
+                                    sprintf(line_expression, "%s%f", line_expression, massiv[size * i + j]);
+                                    if (j != size - 1)
+                                        sprintf(line_expression, "%s, ", line_expression);
+                                }
+                                sprintf(line_expression, "%s)", line_expression);
+                                if (i != num - 1)
+                                    sprintf(line_expression, "%s - ", line_expression);
+                                else
+                                    sprintf(line_expression, "%s = ", line_expression);
+                            }
+                            sprintf(line_expression, "%s(", line_expression);
+                            for (int j = 0; j < size; j++)
+                            {
+                                sprintf(line_expression, "%s%f", line_expression, res[j]);
+                                if (j != size - 1)
+                                    sprintf(line_expression, "%s, ", line_expression);
+                            }
+                            sprintf(line_expression, "%s)", line_expression);
+                            break;
+                        }
+                        default:
+                        {
+                            sprintf(line_expression, "я на 50 шагов впереди тебя и всех остальных. Мой код не победить.(возможно)\n");
+                            break;
+                        }
+                        } //<- switch
+                        free(massiv);
+                        free(res);
+                        //printf("Хотите завершить вычисления? e - выход из приложения, другие символы - продолжение\n");
+                        res_v = calc.current_settings->close_calculator_subspecies;
+                    }
+                    else if ((size > 0) && (num == 2))
+                    {
+                        switch (str)
+                        {
+                        case '*': //приведение ответа к единице, так же перед подсчётом
+                        {         //для скалярного произведения
+                            for (int j = 0; j < size; j++)
+                                res[j] = 1;
+                            for (int i = 0; i < num; i++)
+                            {
+                                for (int j = 0; j < size; j++)
+                                {
+                                    res[j] = res[j] * massiv[size * i + j];
+                                    if (i + 1 >= num)
+                                        sizeVector += counter((int)res[j]);
+                                }
+                            }
+                            for (int j = 1; j < size; j++)
+                                res[0] = res[0] + res[j];
+                            sizeVector += counter((int)res[0]);
+
+                            line_expression = malloc((sizeVector + 1 + num * size * 7 + (num - 1) * 5 + 2 * (size - 1) * num + 4 + 1 * 7 + 1) * sizeof(char));
+                            // так эе как и в прошлый раз, но после "+ 4" идёт: остаток от числа + _
+                            sprintf(line_expression, "");
+                            for (int i = 0; i < num; i++)
+                            {
+                                sprintf(line_expression, "%s(", line_expression);
+                                for (int j = 0; j < size; j++)
+                                {
+                                    sprintf(line_expression, "%s%f", line_expression, massiv[size * i + j]);
+                                    if (j != size - 1)
+                                        sprintf(line_expression, "%s, ", line_expression);
+                                }
+                                sprintf(line_expression, "%s)", line_expression);
+                                if (i != num - 1)
+                                    sprintf(line_expression, "%s * ", line_expression);
+                                else
+                                    sprintf(line_expression, "%s = ", line_expression);
+                            }
+                            sprintf(line_expression, "%s%f", line_expression, res[0]);
+
+                            break;
+                        }
+                        case '+':
+                        {
+                            for (int j = 0; j < size; j++)
+                                res[j] = 0;
+                            for (int i = 0; i < num; i++)
+                            {
+                                for (int j = 0; j < size; j++)
+                                {
+                                    res[j] = res[j] + massiv[size * i + j];
+                                    if (i + 1 >= num)
+                                        sizeVector += counter((int)res[j]);
+                                }
+                            }
+
+                            line_expression = malloc((sizeVector + 1 + num * size * 7 + (num - 1) * 5 + 2 * (size - 1) * num + 4 + 1 + size * 7 + (size - 1) + 1 + 1) * sizeof(char));
+                            sprintf(line_expression, "");
+                            for (int i = 0; i < num; i++)
+                            {
+                                sprintf(line_expression, "%s(", line_expression);
+                                for (int j = 0; j < size; j++)
+                                {
+                                    sprintf(line_expression, "%s%f", line_expression, massiv[size * i + j]);
+                                    if (j != size - 1)
+                                        sprintf(line_expression, "%s, ", line_expression);
+                                }
+                                sprintf(line_expression, "%s)", line_expression);
+                                if (i != num - 1)
+                                    sprintf(line_expression, "%s + ", line_expression);
+                                else
+                                    sprintf(line_expression, "%s = ", line_expression);
+                            }
+                            sprintf(line_expression, "%s(", line_expression);
+                            for (int j = 0; j < size; j++)
+                            {
+                                sprintf(line_expression, "%s%f", line_expression, res[j]);
+                                if (j != size - 1)
+                                    sprintf(line_expression, "%s, ", line_expression);
+                            }
+                            sprintf(line_expression, "%s)", line_expression);
+                            break;
+                        }
+                        case '-':
+                        {
+                            for (int j = 0; j < size; j++)
+                                res[j] = 0;
+                            for (int i = 0; i < num; i++)
+                            {
+                                for (int j = 0; j < size; j++)
+                                {
+                                    if (i == 0)
+                                    {
+                                        res[j] = massiv[j];
+                                    }
+                                    else
+                                        res[j] = res[j] - massiv[size * i + j];
+                                    if (i + 1 >= num)
+                                        sizeVector += counter((int)res[j]);
+                                }
+                            }
+
+                            line_expression = malloc((sizeVector + 1 + num * size * 7 + (num - 1) * 5 + 2 * (size - 1) * num + 4 + 1 + size * 7 + (size - 1) + 1 + 1) * sizeof(char));
+                            sprintf(line_expression, "");
+
+                            for (int i = 0; i < num; i++)
+                            {
+                                sprintf(line_expression, "%s(", line_expression);
+                                for (int j = 0; j < size; j++)
+                                {
+                                    sprintf(line_expression, "%s%f", line_expression, massiv[size * i + j]);
+                                    if (j != size - 1)
+                                        sprintf(line_expression, "%s, ", line_expression);
+                                }
+                                sprintf(line_expression, "%s)", line_expression);
+                                if (i != num - 1)
+                                    sprintf(line_expression, "%s - ", line_expression);
+                                else
+                                    sprintf(line_expression, "%s = ", line_expression);
+                            }
+
+                            sprintf(line_expression, "%s(", line_expression);
+                            for (int j = 0; j < size; j++)
+                            {
+                                sprintf(line_expression, "%s%f", line_expression, res[j]);
+                                if (j != size - 1)
+                                    sprintf(line_expression, "%s, ", line_expression);
+                            }
+                            sprintf(line_expression, "%s)", line_expression);
+                            break;
+                        }
+                        default:
+                        {
+                            //sprintf(line_expression, "я на 50 шагов впереди тебя и всех остальных. Мой код не победить.(возможно)\n");
+                            break;
+                        }
+                        } //<- switch
+                        free(massiv);
+                        free(res);
+                        //printf("Хотите завершить вычисления? e - выход из приложения, другие символы - продолжение\n");
+                        res_v = calc.current_settings->close_calculator_subspecies;
+                    }
+                    else
+                    {
+                        //sprintf(line_expression, "Нужно вводить размер вектора(>0) и количество векторов(>1)!!!\n");
+                    }
+                    if (res_v != 'e')
+                    {
+                        calc.current_settings = calc.current_settings->next;
+                        calc.current_n = calc.current_n->next;
+                    }
+
+                    if (res_v != 'e')
+                    {
+                        push_list_out(line_expression, &calc);
+                    }
+
+                } while (res_v != 'e');
+            }
+            else
+            {
+                //sprintf(line_expression, "Программа это запомнит.\n");
+                //sprintf(line_expression, "Теперь программа отказывается вам помогать.");
+            }
+            //printf("Хотите завершить пользование калькулятором? e - выход из приложения, другие символы - продолжение\n");
+            end = calc.current_settings->close_file;
+            if (end != 'e')
+            {
+                calc.current_settings = calc.current_settings->next;
+                calc.current_n = calc.current_n->next;
+            }
+
+            push_list_out(line_expression, &calc);
+
+        } while (end != 'e');
+
         deleteList();
-        push_list_out(line_expression, &calc);
         writeAnswerToFile(outputFile);
         fclose(outputFile);
-        pop_list_out(&calc);
         deleteResults();
-        fclose(outputFile);
-    }
+
+        printf("Хотите снова использовать калькулятор?(y-yes;n-no): "); // Вывод строки, с вопросом, продолжить ли вычисление с файлами
+        scanf(" %c", &BackToTheFutures);                                // Читает символ, если y - продолжить, если n - закончить
+        while ((BackToTheFutures != 'y') && (BackToTheFutures != 'n'))  // Проверка на корректно введенное y или n
+        {
+            printf("Пока ты не напишишь \"y\" или \"n\", ты не куда не уйдёшь.\n");
+            scanf(" %c", &BackToTheFutures);
+        }
+        stepRepeat = 1;
+    } while (BackToTheFutures == 'y');
     return 0;
 }
