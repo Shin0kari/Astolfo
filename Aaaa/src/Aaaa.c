@@ -1,17 +1,30 @@
-// испоьзовать input.txt
-
-/*
-Во первых, вы должны обладать ссылкой (https://github.com/Shin0kari/Calculator/).
-Теперь вы ей обладаете, самое сложное уже выполнено, осталось зайти в Eclipse, зайти в workspace(свой или новый, не важно).
-Как откроется IDE сверху выбираем Window->Percpective->Open Percpective->Other...->Git.
-Откроется специальное окно, нужно нажать clone git repository(в ряду с желтыми значками).
-Появится окно, в нем нужно вбить сслыку, либо до откытия clone git repository сохранить в буфер обмена ссылку и Eclipse все сделает сам(Authentication заполнять не нужно, как и все остально кроме location, и в Connection выбрать протокол https).
-Жмем Next, снова жмем Next, выбираем путь, где будет хранится репозиторий из гит на вашем компьютере(Путь должен содержать только английские буквы, и не должен содержать пробелы), а также желательно нажать на галочку в import all esisting Eclipse project after clone finishes.
-Жмем finish и видим, что появилась папка в git repositories заходим в эту папку, дальше Working tree.
-Видим папку Aaaa, жмем 1 раз на нее, потом правой кнопкой. И жмем Import Project.
-Появляется окно, в нем ничего выбирать не нужно, просто если Eclipse выбрал не ту папку, то стоит ее редактировать.
-Жмем finish и уже проект появляется в C/C++. Теперь вы можете смотреть код(Aaaa/src/Aaaa.c)
-*/
+/*   ,==================================================================================================,     |   \
+    /| Name        : Aaaa.c                                                                             |\    |\/\
+=====| Author      : Dmitrii Kasper                                                                     |======={H|
+    \| Version     : (NOT FOUND)                                                                        |/    | \X
+     | Copyright   : free_version                                                                       |     |   \
+     | Description : calculator                                                                         |     |\
+     | Git	      : https://github.com/Shin0kari/Calculator/                                            |     | \
+     |                                                                                                  |     |  \
+     |--------------------------------------------------------------------------------------------------|     |   \
+     |                                                                                                  |     |\
+     | Теперь вы ей обладаете, самое сложное уже выполнено, осталось зайти в Eclipse, зайти в           |     | \
+     | workspace(свой или новый, не важно).                                                             |     |  \
+     | Как откроется IDE сверху выбираем Window->Percpective->Open Percpective->Other...->Git.          |     |   \
+     | Откроется специальное окно, нужно нажать clone git repository(в ряду с желтыми значками).        |     |\
+     | Появится окно, в нем нужно вбить сслыку, либо до откытия clone git repository сохранить          |     | \
+     | в буфер обмена ссылку и Eclipse все сделает сам(Authentication заполнять не нужно,               |     |  \
+     | как и все остально кроме location, и в Connection выбрать протокол https).                       |     |   \
+     | Жмем Next, снова жмем Next, выбираем путь, где будет хранится репозиторий из гит на вашем        |     |\
+     | компьютере(Путь должен содержать только английские буквы, и не должен содержать пробелы),        |     | \
+     | а также желательно нажать на галочку в import all esisting Eclipse project after clone finishes. |     |  \
+     | Жмем finish и видим, что появилась папка в git repositories                                      |     |\  \
+     | заходим в эту папку, дальше Working tree.                                                        |     | \
+     | Видим папку Aaaa, жмем 1 раз на нее, потом правой кнопкой. И жмем Import Project.                |     |  \
+    /| Появляется окно, в нем ничего выбирать не нужно, просто если Eclipse выбрал не ту папку,         |\    | /\\
+=====| то стоит ее редактировать.                                                                       |======={H|
+    \| Жмем finish и уже проект появляется в C/C++. Теперь вы можете смотреть код(Aaaa/src/Aaaa.c).     |/    | \/
+     '=================================================================================================='   */ 
 
 #include <stdlib.h>
 #include <stdio.h> //решил пофлексить Каспер Дмитрий 1 курс 4 группа(ИВТ)
@@ -56,92 +69,204 @@ typedef struct answer // чисто изза условия, хотя ответ
 typedef struct calculator // сама структура калькулятора
 {
     int order; // !!!!!!!!!!!!!!!!!     вроде не нужно но для проверки норм и не мешает.
-    numbers *head_n, *current_n;
-    settings_calc *head_settings, *current_settings;
-    answer *head_res, *current_res;
+    numbers *head_n, *tail_n;
+    settings_calc *head_settings, *tail_settings;
+    answer *head_res, *tail_res;
 } calculator;
 
 calculator calc; // для удобства в обращении
 
-char *pop_list_out(calculator *results) // вроде исправлял, но пока оставлю !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+void fill_queue(calculator *example, FILE *inputFile, char *answer, int *future)
 {
-    char *line;
-    if (results->head_res == NULL || results->current_res == NULL)
+    char type_l;
+
+    if (calc.head_settings == NULL)
     {
-        return NULL;
+        example->head_settings = malloc(sizeof(settings_calc)); //нужно всё инициализировать
+        example->head_n = malloc(sizeof(numbers));
+        answer[0] = 'n';
+        future[0] = 0;
     }
-    else if (results->head_res == results->current_res)
+    if (future[0] == 0)
     {
-        line = results->current_res->ans_res;
-        results->current_res = results->current_res->next;
-        free(results->head_res);
-        results->head_res = results->current_res;
-        return line;
+        fscanf(inputFile, " %c ", &example->head_settings->calc_type);
+        type_l = example->head_settings->calc_type;
+        future[0] = 1;
     }
-    answer *term = results->head_res;
-    while (term->next != results->current_res)
+
+    switch (type_l)
     {
-        term = term->next;
+    case 'v':
+        example->head_settings->current_s = NULL;
+        example->head_settings->current_v = malloc(sizeof(v_calc));
+        fscanf(inputFile, "%d", &example->head_settings->current_v->size);
+        fscanf(inputFile, "%d", &example->head_settings->current_v->num);
+
+        example->head_n->number_v = malloc((example->head_settings->current_v->num * example->head_settings->current_v->size) * sizeof(double));
+        for (int i = 1; i < example->head_settings->current_v->num + 1; i++)
+        {
+            //printf("Введите координаты %i вектора: ", i);
+            for (int j = 0; j < example->head_settings->current_v->size; j++)
+            {
+                fscanf(inputFile, "%lf", &example->head_n->number_v[example->head_settings->current_v->size * (i - 1) + j]);
+            }
+        }
+
+        fscanf(inputFile, " %c ", &example->head_settings->current_v->operations); //какая операция с векторами
+        fscanf(inputFile, " %c ", &example->head_settings->close_calculator_subspecies);
+        if (example->head_settings->close_calculator_subspecies == 'e')
+        {
+            fscanf(inputFile, " %c ", &example->head_settings->close_file);
+        }
+        break;
+    case 's':
+        example->head_settings->current_s = malloc(sizeof(s_calc));
+        example->head_settings->current_v = NULL;
+        example->head_n->number_v = NULL;
+
+        if (answer[0] != 'y') // check_work_with_Answer_l: 1 == y, 0 == n;
+        {
+            fscanf(inputFile, "%lf", &example->head_n->number_s1);
+        }
+        fscanf(inputFile, " %c ", &example->head_settings->current_s->operations);
+        if (!((example->head_settings->current_s->operations == '!') || (example->head_settings->current_s->operations == 'a')))
+        {
+            fscanf(inputFile, "%lf", &example->head_n->number_s2);
+        }
+        fscanf(inputFile, " %c ", &example->head_settings->current_s->use_answer);
+        if (example->head_settings->current_s->use_answer == 'y')
+        {
+            answer[0] = 'y';
+        }
+        else
+        {
+            answer[0] = 'n';
+        }
+        //check_work_with_Answer_l = current->head_settings->current_s->use_answer; // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        if (example->head_settings->current_s->use_answer == 'n')
+        {
+            fscanf(inputFile, " %c ", &example->head_settings->close_calculator_subspecies);
+            if (example->head_settings->close_calculator_subspecies == 'e')
+            {
+                fscanf(inputFile, " %c ", &example->head_settings->close_file);
+                future[0] = 0; // новый калькулятор
+            }
+        }
+        break;
     }
-    line = results->current_res->ans_res;
-    term->next = results->current_res->next;
-    free(results->current_res);
-    results->current_res = term;
-    return line;
 }
 
-void push_list_out(char *line, calculator *results)
+void pushback_queue_in(calculator *current, char *answer, int *future)
+{
+    char type; // нужна для такого ввода s + 2 n n   <-- т.е. 1 значение берётся из прошлого
+    if (calc.head_settings == NULL)
+    {
+        calc.head_settings = malloc(sizeof(settings_calc)); //нужно всё инициализировать
+        calc.head_n = malloc(sizeof(numbers));
+        calc.tail_n = calc.head_n;
+        calc.tail_settings = calc.head_settings;
+        answer[0] = ' '; // у меня
+        future[0] = 0;
+    }
+    else
+    {
+        calc.tail_settings->next = malloc(sizeof(settings_calc));
+        calc.tail_n->next = malloc(sizeof(numbers));
+        calc.tail_settings = calc.tail_settings->next;
+        calc.tail_n = calc.tail_n->next;
+    }
+    calc.tail_settings->next = NULL;
+    calc.tail_n->next = NULL;
+    if (future[0] == 0) //  начинаем заполнять список по элементам
+    {
+        calc.tail_settings->calc_type = current->head_settings->calc_type;
+        type = calc.tail_settings->calc_type;
+        future[0] = 1; // использовать старый калькулятор
+    }
+    switch (type)
+    {
+    case 'v': //!!!!!!!!!!!!!!!!!!! вопрос, можно прировнять просто 2 массива и не обяз записывать просто числа?!!!!!!!!!!!!
+
+        calc.tail_settings->current_v = malloc(sizeof(v_calc));
+        calc.tail_settings->current_s = NULL;
+        calc.tail_settings->current_v->size = current->head_settings->current_v->size;
+        calc.tail_settings->current_v->num = current->head_settings->current_v->num;
+        calc.tail_n->number_v = malloc((calc.tail_settings->current_v->num * calc.tail_settings->current_v->size) * sizeof(double));
+        for (int i = 1; i < calc.tail_settings->current_v->num + 1; i++)
+        {
+            //printf("Введите координаты %i вектора: ", i);
+            for (int j = 0; j < calc.tail_settings->current_v->size; j++)
+            {
+                calc.tail_n->number_v[calc.tail_settings->current_v->size * (i - 1) + j] = current->head_n->number_v[calc.tail_settings->current_v->size * (i - 1) + j];
+            }
+        }
+        calc.tail_settings->current_v->operations = current->head_settings->current_v->operations; //какая операция с векторами
+        calc.tail_settings->close_calculator_subspecies = current->head_settings->close_calculator_subspecies;
+        if (calc.tail_settings->close_calculator_subspecies == 'e')
+        {
+            calc.tail_settings->close_file = current->head_settings->close_file;
+        }
+        break;
+    case 's':
+
+        calc.tail_settings->current_s = malloc(sizeof(s_calc));
+        calc.tail_settings->current_v = NULL;
+        calc.tail_n->number_v = NULL;
+        if (answer[0] != 'y')
+        {
+            calc.tail_n->number_s1 = current->head_n->number_s1;
+        }
+        calc.tail_settings->current_s->operations = current->head_settings->current_s->operations;
+        if (!((calc.tail_settings->current_s->operations == '!') || (calc.tail_settings->current_s->operations == 'a')))
+        {
+            calc.tail_n->number_s2 = current->head_n->number_s2;
+        }
+        calc.tail_settings->current_s->use_answer = current->head_settings->current_s->use_answer;
+        if (calc.tail_settings->current_s->use_answer == 'y')
+        {
+            answer[0] = 'y';
+        }
+        else
+        {
+            answer[0] = 'n';
+        }
+        if (calc.tail_settings->current_s->use_answer == 'n')
+        {
+            calc.tail_settings->close_calculator_subspecies = current->head_settings->close_calculator_subspecies;
+            if (calc.tail_settings->close_calculator_subspecies == 'e')
+            {
+                calc.tail_settings->close_file = current->head_settings->close_file;
+                future[0] = 0; // новый калькулятор
+            }
+        }
+        break;
+    }
+}
+
+void pushback_queue_out(char *line, calculator *results)
 {
     if (results->head_res == NULL)
     {
         results->head_res = malloc(sizeof(answer));
-        results->current_res = results->head_res;
+        results->tail_res = results->head_res;
     }
     else
     {
-        results->current_res = results->head_res;
-        while (results->current_res->next != NULL)
-        {
-            results->current_res = results->current_res->next;
-        }
-        results->current_res->next = malloc(sizeof(answer));
-        results->current_res = results->current_res->next;
+        results->tail_res->next = malloc(sizeof(answer));
+        results->tail_res = results->tail_res->next;
     }
-    results->current_res->next = NULL;
-    results->current_res->ans_res = line;
+    results->tail_res->next = NULL;
+    results->tail_res->ans_res = line;
 }
 
-void deleteResults()
+void pop_queue_in(calculator *current)
 {
-    calc.current_res = calc.head_res;
-    while (calc.current_res != NULL)
-    {
-        calc.current_res = calc.head_res;
-        pop_list_out(&calc);
-    }
-}
-
-void writeAnswerToFile(FILE *outputFile)
-{
-    calc.current_res = calc.head_res;
-    while (calc.current_res != NULL)
-    {
-        fprintf(outputFile, "%s\n", pop_list_out(&calc));
-    }
-}
-
-// для удобства просмотра пробелы поставил просто так
-
-void pop_list_in(calculator *current)
-{
-    if (current->head_settings == NULL || current->current_settings == NULL)
+    if (current->head_settings == NULL)
     {
         return;
     }
-    else if (current->head_settings == current->current_settings)
+    if (current->head_settings->next == NULL)
     {
-        current->current_settings = current->current_settings->next;
-        current->current_n = current->current_n->next;
         if (current->head_n->number_v != NULL) // очищение массива для вект кальк если он есть
         {
             free(current->head_n->number_v);
@@ -161,221 +286,61 @@ void pop_list_in(calculator *current)
         free(current->head_n);        // очищение чисел общее
         current->head_settings = NULL;
         current->head_n = NULL;
-        current->head_settings = current->current_settings;
-        current->head_n = current->current_n;
+        current->tail_n = NULL;
+        current->tail_settings = NULL;
         return;
     }
     settings_calc *term_s = current->head_settings;
     numbers *term_n = current->head_n;
-    while (term_s->next != current->current_settings)
-    {
-        term_s = term_s->next;
-        term_n = term_n->next;
-    }
-    term_s->next = current->current_settings->next;
-    term_n->next = current->current_n->next;
-    if (current->current_n->number_v != NULL) // очищение массива для вект кальк если он есть
-    {
-        free(current->current_n->number_v);
-        current->current_n->number_v = NULL;
-    }
-    if (current->current_settings->current_s != NULL) // очищение настроек обычного кальк
-    {
-        free(current->current_settings->current_s);
-        current->current_settings->current_s = NULL;
-    }
-    if (current->current_settings->current_v != NULL) // очищение настроек вект кальк
-    {
-        free(current->current_settings->current_v);
-        current->current_settings->current_v = NULL;
-    }
-    free(current->current_settings); // очищение настроек общее
-    free(current->current_n);        // очищение чисел общее
-    current->current_settings = NULL;
-    current->current_n = NULL;
-    current->current_settings = term_s;
-    current->current_n = term_n;
+    current->head_settings = term_s->next;
+    current->head_n = term_n->next;
+    free(term_s);
+    free(term_n); // возможно придётся добавить получше отчищение
 }
 
-void deleteList()
+char *pop_queue_out(calculator *results)
 {
-    calc.current_settings = calc.head_settings;
-    calc.current_n = calc.head_n;
-    while (calc.current_settings != NULL)
+    char *line;
+    if (results->head_res == NULL)
     {
-        calc.current_settings = calc.head_settings;
-        calc.current_n = calc.head_n;
-        pop_list_in(&calc);
+        return NULL;
+    }
+    if (results->head_res->next == NULL)
+    {
+        line = results->head_res->ans_res;
+        free(results->head_res);
+        results->head_res = NULL;
+        results->tail_res = NULL;
+        return line;
+    }
+    answer *term = results->head_res;
+    results->head_res = term->next;
+    line = term->ans_res;
+    free(term);
+    return line;
+}
+
+void delete_queue()
+{                                      // Удалить листы очереди
+    while (calc.head_settings != NULL) // не уверен, что должно быть в условии !!!!!!!!!!!!!!!!!!!!!!!!
+    {
+        pop_queue_in(&calc);
     }
 }
 
-void fill_list(calculator *example, FILE *inputFile, char *answer, int *future)
-{
-
-    char type_l;
-
-    if (calc.head_settings == NULL)
+void delete_queue_Results()
+{ // Удалить лист output_data_for_queues
+    while (calc.head_res != NULL)
     {
-        example->current_settings = malloc(sizeof(settings_calc)); //нужно всё инициализировать
-        example->current_n = malloc(sizeof(numbers));
-        answer[0] = 'n';
-        future[0] = 0;
-    }
-
-    if (future[0] == 0)
-    {
-        fscanf(inputFile, " %c ", &example->current_settings->calc_type);
-        type_l = example->current_settings->calc_type;
-        future[0] = 1;
-    }
-    switch (type_l)
-    {
-    case 'v':
-        example->current_settings->current_s = NULL;
-        example->current_settings->current_v = malloc(sizeof(v_calc));
-        fscanf(inputFile, "%d", &example->current_settings->current_v->size);
-        fscanf(inputFile, "%d", &example->current_settings->current_v->num);
-        example->current_n->number_v = malloc((example->current_settings->current_v->num * example->current_settings->current_v->size) * sizeof(double));
-        for (int i = 1; i < example->current_settings->current_v->num + 1; i++)
-        {
-            //printf("Введите координаты %i вектора: ", i);
-            for (int j = 0; j < example->current_settings->current_v->size; j++)
-            {
-                fscanf(inputFile, "%lf", &example->current_n->number_v[example->current_settings->current_v->size * (i - 1) + j]);
-            }
-        }
-        fscanf(inputFile, " %c ", &example->current_settings->current_v->operations); //какая операция с векторами
-        fscanf(inputFile, " %c ", &example->current_settings->close_calculator_subspecies);
-        if (example->current_settings->close_calculator_subspecies == 'e')
-        {
-            fscanf(inputFile, " %c ", &example->current_settings->close_file);
-        }
-        break;
-    case 's':
-        example->current_settings->current_s = malloc(sizeof(s_calc));
-        example->current_settings->current_v = NULL;
-        example->current_n->number_v = NULL;
-        if (answer[0] != 'y') // check_work_with_Answer_l: 1 == y, 0 == n;
-        {
-            fscanf(inputFile, "%lf", &example->current_n->number_s1);
-        }
-        fscanf(inputFile, " %c ", &example->current_settings->current_s->operations);
-        if (!((example->current_settings->current_s->operations == '!') || (example->current_settings->current_s->operations == 'a')))
-        {
-            fscanf(inputFile, "%lf", &example->current_n->number_s2);
-        }
-        fscanf(inputFile, " %c ", &example->current_settings->current_s->use_answer);
-        if (example->current_settings->current_s->use_answer == 'y')
-        {
-            answer[0] = 'y';
-        }
-        else
-        {
-            answer[0] = 'n';
-        }
-        //check_work_with_Answer_l = current->current_settings->current_s->use_answer; // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-        if (example->current_settings->current_s->use_answer == 'n')
-        {
-            fscanf(inputFile, " %c ", &example->current_settings->close_calculator_subspecies);
-            if (example->current_settings->close_calculator_subspecies == 'e')
-            {
-                fscanf(inputFile, " %c ", &example->current_settings->close_file);
-                future[0] = 0; // новый калькулятор
-            }
-        }
-        break;
+        pop_queue_out(&calc);
     }
 }
 
-void push_back(calculator *current, char *answer, int *future)
-{
-    char type;                      // нужна для такого ввода s + 2 n n   <-- т.е. 1 значение берётся из прошлого
-    if (calc.head_settings == NULL) // начинаем проверку с NULL, потом current
+void write_queue_AnswerToFile(FILE *outputFile)
+{ // Вписать из листа в файл
+    while (calc.head_res != NULL)
     {
-        calc.head_settings = malloc(sizeof(settings_calc)); //нужно всё инициализировать
-        calc.head_n = malloc(sizeof(numbers));
-        calc.current_n = calc.head_n;
-        calc.current_settings = calc.head_settings;
-        answer[0] = ' '; // у меня
-        future[0] = 0;
-    }
-    else
-    {
-        calc.current_n = calc.head_n;
-        calc.current_settings = calc.head_settings;
-        while (calc.current_settings->next != NULL)
-        {
-            calc.current_settings = calc.current_settings->next;
-            calc.current_n = calc.current_n->next;
-        }
-        calc.current_settings->next = malloc(sizeof(settings_calc));
-        calc.current_n->next = malloc(sizeof(numbers));
-        calc.current_settings = calc.current_settings->next;
-        calc.current_n = calc.current_n->next;
-    }
-    calc.current_settings->next = NULL;
-    calc.current_n->next = NULL;
-    if (future[0] == 0) //  начинаем заполнять список по элементам
-    {
-        calc.current_settings->calc_type = current->current_settings->calc_type;
-        type = calc.current_settings->calc_type;
-        future[0] = 1; // использовать старый калькулятор
-    }
-    switch (type)
-    {
-    case 'v':
-        calc.current_settings->current_v = malloc(sizeof(v_calc));
-        calc.current_settings->current_s = NULL;
-        calc.current_settings->current_v->size = current->current_settings->current_v->size;
-        calc.current_settings->current_v->num = current->current_settings->current_v->num;
-        calc.current_n->number_v = malloc((calc.current_settings->current_v->num * calc.current_settings->current_v->size) * sizeof(double));
-        for (int i = 1; i < calc.current_settings->current_v->num + 1; i++)
-        {
-            //printf("Введите координаты %i вектора: ", i);
-            for (int j = 0; j < calc.current_settings->current_v->size; j++)
-            {
-                calc.current_n->number_v[calc.current_settings->current_v->size * (i - 1) + j] = current->current_n->number_v[calc.current_settings->current_v->size * (i - 1) + j];
-            }
-        }
-        calc.current_settings->current_v->operations = current->current_settings->current_v->operations; //какая операция с векторами
-        calc.current_settings->close_calculator_subspecies = current->current_settings->close_calculator_subspecies;
-        if (calc.current_settings->close_calculator_subspecies == 'e')
-        {
-            calc.current_settings->close_file = current->current_settings->close_file;
-        }
-        break;
-    case 's':
-        calc.current_settings->current_s = malloc(sizeof(s_calc));
-        calc.current_settings->current_v = NULL;
-        calc.current_n->number_v = NULL;
-        if (answer[0] != 'y')
-        {
-            calc.current_n->number_s1 = current->current_n->number_s1;
-        }
-        calc.current_settings->current_s->operations = current->current_settings->current_s->operations;
-        if (!((calc.current_settings->current_s->operations == '!') || (calc.current_settings->current_s->operations == 'a')))
-        {
-            calc.current_n->number_s2 = current->current_n->number_s2;
-        }
-        calc.current_settings->current_s->use_answer = current->current_settings->current_s->use_answer;
-        if (calc.current_settings->current_s->use_answer == 'y')
-        {
-            answer[0] = 'y';
-        }
-        else
-        {
-            answer[0] = 'n';
-        }
-        if (calc.current_settings->current_s->use_answer == 'n')
-        {
-            calc.current_settings->close_calculator_subspecies = current->current_settings->close_calculator_subspecies;
-            if (calc.current_settings->close_calculator_subspecies == 'e')
-            {
-                calc.current_settings->close_file = current->current_settings->close_file;
-                future[0] = 0; // новый калькулятор
-            }
-        }
-        break;
+        fprintf(outputFile, "%s\n", pop_queue_out(&calc));
     }
 }
 
@@ -483,8 +448,8 @@ int main(int argc, char *argv[])
         while (!feof(inputFile))
         {                            // Заполнение всего листа settings
             calculator example_list; // для создания 1 стр
-            fill_list(&example_list, inputFile, check_answer, check_future);
-            push_back(&example_list, check_answer_1, check_future_1);
+            fill_queue(&example_list, inputFile, check_answer, check_future);
+            pushback_queue_in(&example_list, check_answer_1, check_future_1);
         }
 
         free(check_future);
@@ -494,14 +459,10 @@ int main(int argc, char *argv[])
 
         fclose(inputFile);
 
-        calc.current_settings = calc.head_settings;
-        calc.current_n = calc.head_n;
-        calc.current_res = calc.head_res; // хз нужна ли эта строка !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
         do
         {
             char start;
-            start = calc.current_settings->calc_type;
+            start = calc.head_settings->calc_type;
 
             if (start == 's')
             {
@@ -520,7 +481,7 @@ int main(int argc, char *argv[])
                     printf("сложить 2 числа(1 + 2), поделить(1 / 2), умножить(1 * 1)\n");
                     printf("возвести 1 число в степень равную номеру 2 числа(1 ^ 2)\n");*/
 
-                    res = calc.current_n->number_s1; //тк калькулятор win может продолжить работу
+                    res = calc.head_n->number_s1; //тк калькулятор win может продолжить работу
 
                     do //с ответом, я решил сделать также.
                     {  //поэтому у меня два while - 1 отвечает"не хотите ли
@@ -528,9 +489,9 @@ int main(int argc, char *argv[])
                         fprintf(outputFile,"%lf",res);*/
                         //2 - отвечает "хотите продолжить работу с ответом?"
 
-                        str = calc.current_settings->current_s->operations;
+                        str = calc.head_settings->current_s->operations;
                         if ((str != 'a') && (str != '!'))
-                            b = calc.current_n->number_s2;
+                            b = calc.head_n->number_s2;
 
                         switch (str)
                         {
@@ -636,29 +597,21 @@ int main(int argc, char *argv[])
 
                         //printf("Хотите продолжить вычисления с ответом? y - да, другие символы - выход\n");
 
-                        workWithRes = calc.current_settings->current_s->use_answer;
+                        workWithRes = calc.head_settings->current_s->use_answer;
                         if (workWithRes == 'y')
                         {
-                            push_list_out(line_expression, &calc);
-                        }
-                        if (workWithRes == 'y')
-                        {
-                            calc.current_settings = calc.current_settings->next;
-                            calc.current_n = calc.current_n->next;
+                            pushback_queue_out(line_expression, &calc);
+                            pop_queue_in(&calc);
                         }
                     } while (workWithRes == 'y');
 
                     //printf("Хотите завершить вычисления? e - выход из приложения, другие символы - продолжение\n");
 
-                    res_s = calc.current_settings->close_calculator_subspecies;
+                    res_s = calc.head_settings->close_calculator_subspecies;
                     if (res_s != 'e')
                     {
-                        calc.current_settings = calc.current_settings->next;
-                        calc.current_n = calc.current_n->next;
-                    }
-                    if (res_s != 'e')
-                    {
-                        push_list_out(line_expression, &calc);
+                        pushback_queue_out(line_expression, &calc);
+                        pop_queue_in(&calc);
                     }
                 } while (res_s != 'e');
             }
@@ -674,8 +627,8 @@ int main(int argc, char *argv[])
                     //printf("Введите размер вектора(>0) и количество векторов(>1): ");            //программа работает с 2 и более векторов
                     //fscanf(inputFile, "%d %d", &size, &num);
                     //scanf("%i",&num);
-                    size = calc.current_settings->current_v->size;
-                    num = calc.current_settings->current_v->num;
+                    size = calc.head_settings->current_v->size;
+                    num = calc.head_settings->current_v->num;
                     sizeVector = 0;
 
                     massiv = malloc((size * num) * sizeof(double));
@@ -685,13 +638,13 @@ int main(int argc, char *argv[])
                         //printf("Введите координаты %i вектора: ", i);
                         for (int j = 0; j < size; j++)
                         {
-                            massiv[size * (i - 1) + j] = calc.current_n->number_v[calc.current_settings->current_v->size * (i - 1) + j];
+                            massiv[size * (i - 1) + j] = calc.head_n->number_v[calc.head_settings->current_v->size * (i - 1) + j];
                             sizeVector += counter((int)massiv[size * (i - 1) + j]);
                         }
                         //printf("\n");
                     }
                     //printf("Введите операцию: ");
-                    str = calc.current_settings->current_v->operations;
+                    str = calc.head_settings->current_v->operations;
 
                     if ((size > 0) && (num > 2))
                     {
@@ -802,7 +755,7 @@ int main(int argc, char *argv[])
                         free(massiv);
                         free(res);
                         //printf("Хотите завершить вычисления? e - выход из приложения, другие символы - продолжение\n");
-                        res_v = calc.current_settings->close_calculator_subspecies;
+                        res_v = calc.head_settings->close_calculator_subspecies;
                     }
                     else if ((size > 0) && (num == 2))
                     {
@@ -945,21 +898,17 @@ int main(int argc, char *argv[])
                         free(massiv);
                         free(res);
                         //printf("Хотите завершить вычисления? e - выход из приложения, другие символы - продолжение\n");
-                        res_v = calc.current_settings->close_calculator_subspecies;
+                        res_v = calc.head_settings->close_calculator_subspecies;
                     }
                     else
                     {
                         //sprintf(line_expression, "Нужно вводить размер вектора(>0) и количество векторов(>1)!!!\n");
                     }
-                    if (res_v != 'e')
-                    {
-                        calc.current_settings = calc.current_settings->next;
-                        calc.current_n = calc.current_n->next;
-                    }
 
                     if (res_v != 'e')
                     {
-                        push_list_out(line_expression, &calc);
+                        pushback_queue_out(line_expression, &calc);
+                        pop_queue_in(&calc);
                     }
 
                 } while (res_v != 'e');
@@ -970,21 +919,19 @@ int main(int argc, char *argv[])
                 //sprintf(line_expression, "Теперь программа отказывается вам помогать.");
             }
             //printf("Хотите завершить пользование калькулятором? e - выход из приложения, другие символы - продолжение\n");
-            end = calc.current_settings->close_file;
+            end = calc.head_settings->close_file;
             if (end != 'e')
             {
-                calc.current_settings = calc.current_settings->next;
-                calc.current_n = calc.current_n->next;
+                pop_queue_in(&calc);
             }
-
-            push_list_out(line_expression, &calc);
+            pushback_queue_out(line_expression, &calc);
 
         } while (end != 'e');
 
-        deleteList();
-        writeAnswerToFile(outputFile);
+        delete_queue();
+        write_queue_AnswerToFile(outputFile);
         fclose(outputFile);
-        deleteResults();
+        delete_queue_Results();
 
         printf("Хотите снова использовать калькулятор?(y-yes;n-no): "); // Вывод строки, с вопросом, продолжить ли вычисление с файлами
         scanf(" %c", &BackToTheFutures);                                // Читает символ, если y - продолжить, если n - закончить
