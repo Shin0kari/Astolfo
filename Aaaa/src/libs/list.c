@@ -62,7 +62,7 @@ void deleteResults()
     while (list_calc.current_res != NULL)
     {
         list_calc.current_res = list_calc.head_res;
-        pop_list_out(&calc);
+        pop_list_out(&list_calc);
     }
 }
 
@@ -71,7 +71,7 @@ void writeAnswerToFile(FILE *outputFile)
     list_calc.current_res = list_calc.head_res;
     while (list_calc.current_res != NULL)
     {
-        fprintf(outputFile, "%s\n", pop_list_out(&calc));
+        fprintf(outputFile, "%s\n", pop_list_out(&list_calc));
     }
 }
 
@@ -150,7 +150,7 @@ void deleteList()
     {
         list_calc.current_settings = list_calc.head_settings;
         list_calc.current_n = list_calc.head_n;
-        pop_list_in(&calc);
+        pop_list_in(&list_calc);
     }
 }
 
