@@ -17,24 +17,24 @@ typedef struct list_numbers // Очередь для чисел
     struct list_numbers *next;
 } list_numbers;
 
-typedef struct simple_calc // в зависимости от используемого калькулятора, будет зависеть операции и 1 доп вопрос
+typedef struct list_simple_calc // в зависимости от используемого калькулятора, будет зависеть операции и 1 доп вопрос
 {
     char operations;
     char use_answer;
-} s_calc;
+} l_s_calc;
 
-typedef struct vector_calc // в зависимости от используемого калькулятора, будет зависеть операции и 1 доп вопрос
+typedef struct list_vector_calc // в зависимости от используемого калькулятора, будет зависеть операции и 1 доп вопрос
 {
     char operations;
     int num;
     int size;
-} v_calc;
+} l_v_calc;
 
 typedef struct settings_list_calc // сама структура калькулятора
 {
     char calc_type;
-    s_calc *current_s;
-    v_calc *current_v;
+    l_s_calc *current_s;
+    l_v_calc *current_v;
     char close_calculator_subspecies;
     char close_file;
     struct settings_list_calc *next;
