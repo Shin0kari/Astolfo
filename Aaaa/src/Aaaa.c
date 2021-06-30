@@ -33,6 +33,131 @@
 #include "libs/queue.h"
 #include "libs/stack.h"
 
+int counter(unsigned long int i)
+{ // Функция считает сколько нужно символов перед запятой для числа
+    int counter = 0;
+    if (i < 0)
+    {
+        counter++;
+        i = -i;
+    }
+    do
+    {
+        counter++;
+        i = i / 10;
+    } while (i > 0);
+    return counter;
+}
+
+int prioritization(char operation) // расстановка приоритетов
+{
+    switch (operation)
+    {
+    case '(':
+        return 4;
+    case ')':
+        return 4;
+    case '^':
+        return 3;
+    case '*':
+        return 2;
+    case '/':
+        return 2;
+    case '+':
+        return 1;
+    case '-':
+        return 1;
+    default:
+        return 0;
+    }
+}
+
+short int checkNum(char num) // проверка элемента, является ли оно числом
+{
+    int truth = 0;
+    char Char_numbers[] = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9'}; //все возможные числа
+    for (int i = 0; i < 10; i++)
+    {
+        if (num == Char_numbers[i])
+        {
+            truth = 1;
+            return truth;
+        }
+    }
+    return truth;
+}
+
+short int checkOperation(char symbol) // проверка элемента, является ли оно операцией
+{
+    int truth = 0;
+    char Char_operations[] = {'^', '*', '/', '+', '-', '!'}; //все возможные операции
+    if (symbol == ' ')
+    {
+        truth = 1;
+        return truth;
+    }
+    for (int i = 0; i < 6; i++)
+    {
+        if (symbol == Char_operations[i])
+        {
+            truth = 1;
+            return truth;
+        }
+    }
+    return truth;
+}
+
+double calculation(double firstNum, double secondNum, char operation) // калькулятор для выражений
+{
+    switch (operation)
+    {
+    case '!':
+        if (firstNum == 0)
+        {
+            return 1.0;
+        }
+        double resForIntegral = 1.0;
+        for (int j = 1; j <= (int)firstNum; j++)
+        {
+            resForIntegral *= j;
+        }
+        return resForIntegral;
+    case '^':
+        if (secondNum == 0)
+        {
+            return 1;
+        }
+        if (secondNum < 0)
+        {
+            secondNum = -secondNum;
+            firstNum = 1.0 / firstNum;
+        }
+        double result = 1.0;
+        for (int i = 0; i < (int)secondNum; i++)
+        {
+            result *= firstNum;
+        }
+        return result;
+    case '*':
+        return firstNum * secondNum;
+    case '/':
+        return firstNum / secondNum;
+    case '+':
+        return firstNum + secondNum;
+    case '-':
+        return firstNum - secondNum;
+    }
+}
+
+double calc__result_of_evaluating_expression() // подсчёт результата вычисления выражения
+{
+    char computation_operation = pop_o(&stack_calc);
+    double secondNumToCalc = pop_n(&stack_calc);
+    double firstNumToCalc = pop_n(&stack_calc);
+    pushback_stack_n(calculation(firstNumToCalc, secondNumToCalc, computation_operation), &stack_calc);
+    return calculation(firstNumToCalc, secondNumToCalc, computation_operation);
+}
+
 int main(int argc, char *argv[])
 {
     setvbuf(stdout, NULL, _IONBF, 0);
