@@ -172,10 +172,6 @@ int main(int argc, char *argv[])
         list_calc.head_n = NULL;
         list_calc.head_res = NULL;
 
-        list_calc.current_settings = list_calc.head_settings;
-        list_calc.current_n = list_calc.head_n;
-        list_calc.current_res = list_calc.head_res;
-
         queue_calc.head_settings = NULL;
         queue_calc.head_n = NULL;
         queue_calc.head_res = NULL;
@@ -440,6 +436,10 @@ int main(int argc, char *argv[])
 
             if (calculator_types == 'l')
             {
+                list_calc.current_settings = list_calc.head_settings;
+                list_calc.current_n = list_calc.head_n;
+                list_calc.current_res = list_calc.head_res;
+
                 do
                 {
                     char start;
