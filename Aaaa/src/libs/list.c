@@ -177,7 +177,7 @@ void fill_list(list_calculator *example, FILE *inputFile, char *answer, int *fut
     {
     case 'v':
         example->current_settings->current_s = NULL;
-        example->current_settings->current_v = malloc(sizeof(v_calc));
+        example->current_settings->current_v = malloc(sizeof(l_v_calc));
         fscanf(inputFile, "%d", &example->current_settings->current_v->size);
         fscanf(inputFile, "%d", &example->current_settings->current_v->num);
         example->current_n->number_v = malloc((example->current_settings->current_v->num * example->current_settings->current_v->size) * sizeof(double));
@@ -197,7 +197,7 @@ void fill_list(list_calculator *example, FILE *inputFile, char *answer, int *fut
         }
         break;
     case 's':
-        example->current_settings->current_s = malloc(sizeof(s_calc));
+        example->current_settings->current_s = malloc(sizeof(l_s_calc));
         example->current_settings->current_v = NULL;
         example->current_n->number_v = NULL;
         if (answer[0] != 'y') // check_work_with_Answer_l: 1 == y, 0 == n;
@@ -269,7 +269,7 @@ void push_back(list_calculator *current, char *answer, int *future)
     switch (type)
     {
     case 'v':
-        list_calc.current_settings->current_v = malloc(sizeof(v_calc));
+        list_calc.current_settings->current_v = malloc(sizeof(l_v_calc));
         list_calc.current_settings->current_s = NULL;
         list_calc.current_settings->current_v->size = current->current_settings->current_v->size;
         list_calc.current_settings->current_v->num = current->current_settings->current_v->num;
@@ -290,7 +290,7 @@ void push_back(list_calculator *current, char *answer, int *future)
         }
         break;
     case 's':
-        list_calc.current_settings->current_s = malloc(sizeof(s_calc));
+        list_calc.current_settings->current_s = malloc(sizeof(l_s_calc));
         list_calc.current_settings->current_v = NULL;
         list_calc.current_n->number_v = NULL;
         if (answer[0] != 'y')
